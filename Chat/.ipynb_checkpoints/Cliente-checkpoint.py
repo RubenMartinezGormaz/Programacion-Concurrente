@@ -6,28 +6,35 @@ import os
 
 class Cliente():
 
-	def __init__(self, host=input("Intoduzca la IP del servidor   "), port=int(input("Intoduzca el PUERTO del servidor   ")), nickname =(input("Intoduzca su nombre  "))):
-		self.s = socket.socket()
-		self.s.connect((host, int(port)))
-		threading.Thread(target=self.recibir, daemon=True).start()
-		print('Hilo con PID = ',os.getpid(), ' y total Hilos activos =', threading.active_count())
+	def __init__(self, host=input("Introduzca la Ip dada por el servidor: "), port=int(input("Introduzca el puerto del servidor: ")), nombre=input("Introduzca nombre: ")):
+		self.nombre = nombre
+		self.sock = socket.socket()
+		self.sock.connect((str(host), int(port)))
+		hilo_recv_mensaje = threading.Thread(target=self.recibir)
+		hilo_recv_mensaje.daemon = True
+		hilo_recv_mensaje.start()
+		print('Hilo con PID',os.getpid())
+		print('Hilos activos', threading.active_count())
 
 		while True:
-			msg = input('\nEscriba texto    ** Enviar = ENTER   ** Salir Chat = 1 \n')
-			if msg != '1' : self.enviar(nickname + ": " + msg)
+			msg = input('\nEscriba texto ? ** Enviar = ENTER ** Abandonar Chat = Q \n')
+			if msg != 'Q' :
+				self.enviar(nombre+ ": " + msg)
 			else:
-				print(" SE CIERRA EL SOCKET", s.getpid())
-				self.s.close()
+				print("Hasta luego")
+				self.sock.close()
 				sys.exit()
 
 	def recibir(self):
 		while True:
 			try:
-				data = self.s.recv(32)
-				if data: print(pickle.loads(data))
-			except: pass
+				data = self.sock.recv(32)
+				if data:
+					print(pickle.loads(data))
+			except:
+				pass
 
 	def enviar(self, msg):
-		self.s.send(pickle.dumps(msg))
+		self.sock.send(pickle.dumps(msg))
 
 arrancar = Cliente()

@@ -5,9 +5,11 @@ import pickle
 import os
 
 class Servidor():
-	def __init__(self, host=socket.gethostname(), port=int(input("Que puerto quiere usar ? "))):
+
+	def __init__(self, host=socket.gethostname(), port=int(input("Introduce un puerto: "))):
 		self.clientes = []
-		print('\nSu IP actual es : ',socket.gethostbyname(host))
+		print("\n Su IP es: ",socket.gethostbyname(host))
+		print("\n Su puerto es: ", port)
 		self.sock = socket.socket()
 		self.sock.bind((str(host), int(port)))
 		self.sock.listen(20)
@@ -15,7 +17,7 @@ class Servidor():
 
 		aceptar = threading.Thread(target=self.aceptarC)
 		procesar = threading.Thread(target=self.procesarC)
-		
+
 		aceptar.daemon = True
 		aceptar.start()
 
@@ -23,9 +25,9 @@ class Servidor():
 		procesar.start()
 
 		while True:
-			msg = input('SALIR = Q\n')
+			msg = input("SALIR = Q\n")
 			if msg == 'Q':
-				print("**** TALOGOOO *****")
+				print("Adioos")
 				self.sock.close()
 				sys.exit()
 			else:
@@ -36,6 +38,7 @@ class Servidor():
 			try:
 				if c != cliente:
 					c.send(msg)
+                    
 			except:
 				self.clientes.remove(c)
 
@@ -57,25 +60,15 @@ class Servidor():
 					try:
 						data = c.recv(32)
 						if data:
+
+							f = open("u22037408.txt", "a")
+							f.write(pickle.loads(data) + "\n")
+							f.close()
 							self.broadcast(data,c)
-							self.fichero(data)
-					except: pass
-	def fichero(self, msg):
-		f = open("u22037408AI1.txt", "a")
-		f.write(msg)
-		f.close()
+					except:
+						pass
 
+                    
 
-	def broadcast(self, msg, cliente):
-		for c in self.cliente:
-			print("Clientes conectados: ", len(self.clientes))
-			try:
-				if c != cliente: 
-					print(pickle.loads(msg))
-					c.send(msg)
-			except: self.clientes.remove(c)
-
-serverSide = Servidor()
-
-s = Servidor()
     
+arrancar = Servidor()
